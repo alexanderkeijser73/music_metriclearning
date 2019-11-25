@@ -1,0 +1,40 @@
+checkpoint_path: '/var/scratch/akeijser/checkpoints_metriclearning'
+best_checkpoint_nips: 'best_model_auc_0_72.pth.tar'
+best_checkpoint_featurenet: 'best_model_17_May_13_09_32.pt.tar'
+best_checkpoint_pcnet: 'best_model_26_May_20_51_38.pt.tar'
+best_checkpoint_multitimescalecnn: 'best_model_03_Jun_13_58_41.pt.tar'
+save: True
+
+n_epochs: 50 #number of epochs of training
+amsgrad: True
+weight_decay: 0
+lr: 0.0002 # adam: learning rate
+lr_patience: 1
+lr_decrease_factor: 0.5
+b1: 0.5 # adam: decay of first order momentum of gradient
+b2: 0.999 #adam: decay of first order momentum of gradient
+validate_every: 100
+verbose: False # to print progress at every step (otherwise at every epoch)
+batch_size: 1
+valid_batch_size: 1
+
+comparisons_file: '/var/scratch/akeijser/MagnaTagATune/comparisons_final.csv'
+clips_dir: '/var/scratch/akeijser/MagnaTagATune/mp3'
+stft_dir: '/var/scratch/akeijser/MagnaTagATune/stft'
+time_window: 50
+featurenet_embedding_dim: 512
+featurenet_square_kernel: False
+featurenet_band_kernel: False
+overlap: 0.5
+chunk_size: 32
+pcnet_reduction_method: 'mean'
+test_on_valid: True
+
+model: 'featurenet'
+feature_extractor_model: 'featurenet'
+pnet_onet_n_fc: 512
+loss_function: 'tripletloss'
+cos_similarity: False
+l2_norm: False
+
+n_folds: 10

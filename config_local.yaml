@@ -1,0 +1,10 @@
+checkpoint_path: './checkpoints_metriclearning'
+nips_checkpoint: 'best_model_auc_0_72.pth.tar'
+best_checkpoint: 'best_model_17_May_13_09_32.pt.tar'
+save: False
+comparisons_file: '/Users/Alexander/Desktop/MagnaTagATune metriclearning/MagnaTagATune/comparisons_final.csv'
+clips_dir: '/Users/Alexander/Desktop/MagnaTagATune metriclearning/MagnaTagATune/mp3'
+stft_dir: null
+verbose: True
+validate_every: 10
+lr: 0.01
