@@ -1,22 +1,13 @@
 import sys
-import os
+
 sys.path.append('..')
 
 import torch
 import torch.nn.functional as F
-from torch.utils.data import SubsetRandomSampler, DataLoader
-from torchvision import transforms
 from sacred import Experiment
 
-from train_utils import split_train_valid, load_checkpoint
-from data.dataloader import ToMel, NormFreqBands
-from models.featurenet import FeatureNet
-from models.featurenet_alternative_filter_shape import FeatureNetSquareKernel, FeatureNetBandKernel
 from models.patchcorrelationnet import PatchCorrelationNet
 from models.siamesenet import SiameseNet
-from models.multi_timescale_cnn import MultiTimescaleCNN
-from models.pnet_onet import CombinedNet
-from models.nips_cnn import NipsCNN
 
 ex = Experiment('test_metricnet_songlevel')
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')

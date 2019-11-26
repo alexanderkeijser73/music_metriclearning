@@ -1,12 +1,9 @@
-import pandas as pd
-from collections import defaultdict
-import numpy as np
-from sklearn.model_selection import KFold
-import itertools
-import torch
-import librosa
 import os
-import networkx as nx
+
+import librosa
+import pandas as pd
+import torch
+from sklearn.model_selection import KFold
 
 from .similarity_graph import SimilarityGraph
 

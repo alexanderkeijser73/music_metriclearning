@@ -1,6 +1,8 @@
-from models.featurenet_modules import *
-from torch.nn.functional import relu
 from torch import sigmoid
+from torch.nn.functional import relu
+
+from models.featurenet_modules import *
+
 
 class FeatureNet(nn.Module):
 

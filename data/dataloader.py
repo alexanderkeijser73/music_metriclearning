@@ -1,11 +1,10 @@
-from torch.utils.data import Dataset, DataLoader
-import torch
-
-from torchvision import transforms
-from torchaudio.transforms import MelSpectrogram
+import os
 
 import librosa
-import os
+import torch
+from torch.utils.data import Dataset, DataLoader
+from torchaudio.transforms import MelSpectrogram
+from torchvision import transforms
 
 from .similarity_graph import SimilarityGraph
 

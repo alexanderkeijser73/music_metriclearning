@@ -1,10 +1,10 @@
 import os
-import torch
-import numpy as np
-from torch.utils.data import SubsetRandomSampler
-import time
-from sklearn.model_selection import KFold
 from itertools import product
+
+import numpy as np
+import torch
+from sklearn.model_selection import KFold
+from torch.utils.data import SubsetRandomSampler
 
 
 def load_checkpoint(model_object, checkpoint_path):
