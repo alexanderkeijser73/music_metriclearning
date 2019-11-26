@@ -1,0 +1,17 @@
+dependencies:
+- python=3.7
+- pip
+- numpy
+- networks
+- pandas
+- pyyaml
+- pymongo
+- pytest
+- pytorch
+- pip:
+    - librosa
+    - dsdtools
+    - musdb
+    - mir-eval
+    - sacred
+    - torchaudio
