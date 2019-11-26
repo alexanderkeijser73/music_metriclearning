@@ -1,3 +1,12 @@
 .idea/
 MagnaTagATune/
 train_kf_cv_siamese.py
+models/featurenet_alternative_filter_shape.py
+models/multi_timescale_cnn.py
+models/nips_cnn.py
+models/patchcorrelationnet.py
+models/pnet_onet.py
+models/siamesenet.py
+models/triplet_matchnet.py
+models/triplet_matchnet_patch_based.py
+models/tripletnet.py
