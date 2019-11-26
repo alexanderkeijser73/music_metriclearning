@@ -6,8 +6,6 @@ import torch
 import torch.nn.functional as F
 from sacred import Experiment
 
-from models.patchcorrelationnet import PatchCorrelationNet
-from models.siamesenet import SiameseNet
 
 ex = Experiment('test_metricnet_songlevel')
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')

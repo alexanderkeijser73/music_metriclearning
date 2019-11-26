@@ -1,4 +1,5 @@
 from torch import sigmoid
+import torch
 from torch.nn.functional import relu
 
 from models.featurenet_modules import *
