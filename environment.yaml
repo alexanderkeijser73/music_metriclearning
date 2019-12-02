@@ -1,3 +1,4 @@
+name: mus_ml
 dependencies:
 - python=3.7
 - pip
