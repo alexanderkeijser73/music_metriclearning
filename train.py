@@ -2,14 +2,14 @@ import sys
 sys.path.append('..')
 import os
 
-from data.k_fold_cross_validation import PreprocessorKFold, FoldDataset
-from data.dataloader import ToMel, NormFreqBands, Chunk
-from models.featurenet import FeatureNet
-from models.metricnet import MetricNet
-from loss import TripletLoss
+from .data.k_fold_cross_validation import PreprocessorKFold, FoldDataset
+from .data.dataloader import ToMel, NormFreqBands, Chunk
+from .models.featurenet import FeatureNet
+from .models.metricnet import MetricNet
+from .loss import TripletLoss
 
-from testing_song_level import test
-from train_utils import save_checkpoint, load_checkpoint, get_patch_tuples
+from .testing_song_level import test
+from .train_utils import save_checkpoint, load_checkpoint, get_patch_tuples
 
 from sacred import Experiment
 from sacred.observers import MongoObserver

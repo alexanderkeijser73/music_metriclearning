@@ -190,6 +190,7 @@ class ToMel(object):
         # concatenate mel-spectrograms with different window sizes (doubled each time)
         for i in range(self.num_n_fft):
             n_fft = self.start_n_fft * 2 ** i
+            # TODO: CHECK FOR TORCHAUDIO VERSION (<0.3 hop, 0.3 hop_length)
             cat_sample.append(MelSpectrogram(n_mels=self.n_mels,
                                              hop_length=self.hop,
                                              f_min=self.f_min,
