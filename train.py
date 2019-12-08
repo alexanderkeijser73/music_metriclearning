@@ -17,13 +17,8 @@ import torch
 from torchvision import transforms
 import time
 
-device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-ex = Experiment('train_triplet_k_fold_cv')
 
-if torch.cuda.is_available():
-    ex.observers.append(MongoObserver.create(url='fs0:27017'))
 
-@ex.config
 def config():
     ex.add_config('config.yaml')
 
@@ -62,7 +57,6 @@ def validate(ft_net, mtr_net, valid_batch, criterion):
     mtr_net.train()
     return valid_loss
 
-@ex.capture
 def train_k_fold_cv(pr, n_folds=10, batch_size=4, valid_batch_size=4, lr_decrease_factor=None, lr_patience=None):
 
     per_fold_cfr = []
@@ -113,7 +107,6 @@ def train_k_fold_cv(pr, n_folds=10, batch_size=4, valid_batch_size=4, lr_decreas
     print(f'Mean CFR: {sum(per_fold_cfr) / len(per_fold_cfr) * 100:.4f}%')
 
 
-@ex.capture
 def train_fold(fold,
                ft_net,
                mtr_net,
@@ -135,7 +128,6 @@ def train_fold(fold,
 
 
 
-@ex.capture
 def test_fold(fold, net, test_dl, checkpoint_path=None, verbose=None):
     checkpoint = os.path.join(checkpoint_path, f'best_model_{time_now}_fold{fold}.pt.tar')
     net = load_checkpoint(net, checkpoint)
@@ -144,7 +136,6 @@ def test_fold(fold, net, test_dl, checkpoint_path=None, verbose=None):
     return cfr
 
 
-@ex.capture
 def train_epoch(fold, epoch, best_loss, ft_net, mtr_net, criterion, optimizer, train_dataloader, valid_dataloader,
                 batch_size, validate_every, n_epochs, checkpoint_path, save, verbose):
     for i, batch in enumerate(train_dataloader):
@@ -199,7 +190,6 @@ def train_epoch(fold, epoch, best_loss, ft_net, mtr_net, criterion, optimizer, t
     return best_loss
 
 
-@ex.automain
 def main(comparisons_file,
          n_folds,
          clips_dir,
