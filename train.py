@@ -57,7 +57,7 @@ def validate(ft_net, mtr_net, valid_batch, criterion):
     mtr_net.train()
     return valid_loss
 
-def train_k_fold_cv(pr, n_folds=10, batch_size=4, valid_batch_size=4, lr_decrease_factor=None, lr_patience=None):
+def train_k_fold_cv(pr, n_folds=10, batch_size=4, valid_batch_size=4, lr_decrease_factor=0.5, lr_patience=None):
 
     per_fold_cfr = []
 
