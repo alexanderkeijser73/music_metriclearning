@@ -17,4 +17,4 @@ lr_decrease_factor: 0.5
 
 batch_size: 1
 valid_batch_size: 1
-n_epochs: 50config_local.yaml
+n_epochs: 50
