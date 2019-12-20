@@ -8,11 +8,16 @@ from torch.utils.data import SubsetRandomSampler
 import yaml
 
 class Config:
-  def __init__(self, **kwargs):
-    for key, value in kwargs.items():
-      setattr(self, key, value)
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
 
 def load_config(yaml_file='config.yaml'):
+    """
+    Loads configuration parameters from yaml file into Config object
+    :param yaml_file: location of config.yaml file containing configuration parameters
+    :return: config object containing all configuration parameters
+    """
     config_dict = yaml.load(open(yaml_file, 'r'), Loader=yaml.FullLoader)
     config_obj = Config(**config_dict)
     return config_obj

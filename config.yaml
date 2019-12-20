@@ -4,6 +4,7 @@ best_checkpoint_featurenet: 'best_model_17_May_13_09_32.pt.tar'
 best_checkpoint_pcnet: 'best_model_26_May_20_51_38.pt.tar'
 best_checkpoint_multitimescalecnn: 'best_model_03_Jun_13_58_41.pt.tar'
 save: True
+tensorboard_logdir: './tensorboard_logs'
 
 n_epochs: 50 #number of epochs of training
 amsgrad: True

@@ -12,14 +12,14 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 class PreprocessorKFold():
 
-    def __init__(self, clips_dir='MagnaTagATune/mp3', comparisons_file='MagnaTagATune/comparisons_final.csv', n_folds=10, transform=None, stft_dir=None, sr=None):
-        self.df = pd.read_csv(comparisons_file, delimiter='\t')
-        self.clips_dir = clips_dir
+    def __init__(self, config, transform=None):
+        self.df = pd.read_csv(config.comparisons_file, delimiter='\t')
+        self.clips_dir = config.clips_dir
         self.transform = transform
-        self.stft_dir = stft_dir
-        self.sr = sr
+        self.stft_dir = config.stft_dir
+        self.sr = config.sr
         self.sg = SimilarityGraph(self.df)
-        self.kf = KFold(n_splits=n_folds)
+        self.kf = KFold(n_splits=config.n_folds)
         self.folds = iter(self.kf.split(self.sg.subgraphs))
         self.id2path = self.sg.id2path
 
