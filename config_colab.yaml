@@ -1,0 +1,20 @@
+checkpoint_path: './checkpoints_metriclearning'
+best_checkpoint: 'best_model_17_May_13_09_32.pt.tar'
+save: False
+comparisons_file: '/content/gdrive/My Drive/UPF SMC/Thesis UPF/MagnaTagATune/comparisons_final.csv'
+clips_dir: '/content/gdrive/My Drive/UPF SMC/Thesis UPF/MagnaTagATune/mp3'
+stft_dir: null
+verbose: True
+validate_every: 10
+lr: 0.01
+sr: 22050
+n_folds: 10
+tensorboard_logdir: 'gdrive/My Drive/UPF SMC/Thesis UPF/tensorboard_runs'
+
+lr_patience: 1
+lr_decrease_factor: 0.5
+
+
+batch_size: 1
+valid_batch_size: 1
+n_epochs: 50config_local.yaml
