@@ -5,7 +5,17 @@ import numpy as np
 import torch
 from sklearn.model_selection import KFold
 from torch.utils.data import SubsetRandomSampler
+import yaml
 
+class Config:
+  def __init__(self, **kwargs):
+    for key, value in kwargs.items():
+      setattr(self, key, value)
+
+def load_config(yaml_file='config.yaml'):
+    config_dict = yaml.load(open(yaml_file, 'r'), Loader=yaml.FullLoader)
+    config_obj = Config(**config_dict)
+    return config_obj
 
 def load_checkpoint(model_object, checkpoint_path):
     cuda = torch.cuda.is_available()

@@ -15,6 +15,7 @@ from sacred import Experiment
 from sacred.observers import MongoObserver
 import torch
 from torchvision import transforms
+from torch.utils.tensorboard import SummaryWriter
 import time
 
 
