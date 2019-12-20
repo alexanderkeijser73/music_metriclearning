@@ -18,7 +18,7 @@ def load_config(yaml_file='config.yaml'):
     :param yaml_file: location of config.yaml file containing configuration parameters
     :return: config object containing all configuration parameters
     """
-    config_dict = yaml.load(open(yaml_file, 'r'), Loader=yaml.FullLoader)
+    config_dict = yaml.load(open(yaml_file, 'r'))
     config_obj = Config(**config_dict)
     return config_obj
 
