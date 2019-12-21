@@ -1,15 +1,15 @@
-checkpoint_path: './checkpoints_metriclearning'
-best_checkpoint: 'best_model_17_May_13_09_32.pt.tar'
+checkpoint_path: ./checkpoints_metriclearning
+best_checkpoint: best_model_17_May_13_09_32.pt.tar
 save: False
-comparisons_file: '/Users/Alexander/Desktop/music_metriclearning/MagnaTagATune/comparisons_final.csv'
-clips_dir: '/Users/Alexander/Desktop/music_metriclearning/MagnaTagATune/mp3'
-stft_dir: null
+comparisons_file: /Users/Alexander/Desktop/music_metriclearning/MagnaTagATune/comparisons_final.csv
+clips_dir: /Users/Alexander/Desktop/music_metriclearning/MagnaTagATune/mp3
+stft_dir: None
 verbose: True
 validate_every: 10
 lr: 0.01
 sr: 22050
 n_folds: 10
-tensorboard_logdir: './tensorboard_logs'
+tensorboard_logdir: ./tensorboard_logs
 
 lr_patience: 1
 lr_decrease_factor: 0.5

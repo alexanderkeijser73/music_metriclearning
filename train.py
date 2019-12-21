@@ -7,9 +7,8 @@ from .data.dataloader import ToMel, NormFreqBands, Chunk
 from .models.featurenet import FeatureNet
 from .models.metricnet import MetricNet
 from .loss import TripletLoss
-
 from .testing_song_level import test
-from .train_utils import save_checkpoint, load_checkpoint, get_patch_tuples, load_config
+from .train_utils import save_checkpoint, load_checkpoint, get_patch_tuples, load_config, parse_args_config
 
 import torch
 from torchvision import transforms
@@ -211,11 +210,16 @@ def train_epoch(config,
     return best_loss
 
 
-def main(config_file='config_local.yaml'):
+def main(config_file='config_local.yaml', parse_args=False):
 
     set_start_timestamp()
-    config = load_config(config_file)
-
+    if parse_args:
+        config = parse_args_config()
+    else:
+        config = load_config(config_file)
+    print('------------')
+    print(config.stft_dir)
+    print('------------')
     # Transforms applied by dataloader
     transforms_list = [
         ToMel(n_mels=80, hop=512, f_min=0., f_max=8000., sr=16000, num_n_fft=3, start_n_fft=1024),
@@ -228,6 +232,3 @@ def main(config_file='config_local.yaml'):
                             transforms.Compose(transforms_list))
 
     train_k_fold_cv(config, pr)
-
-if __name__ == '__main__':
-    main()

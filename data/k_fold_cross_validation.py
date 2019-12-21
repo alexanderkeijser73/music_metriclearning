@@ -66,7 +66,7 @@ class FoldDataset():
             label = item % 2
             query_id, pos_id, neg_id = self.triplets[item // 2]
 
-            if self.preprocessor.stft_dir is None:
+            if self.preprocessor.stft_dir is None or self.preprocessor.stft_dir :
 
                 query = torch.from_numpy(
                     librosa.load(
@@ -135,7 +135,7 @@ class FoldDataset():
 
             query_id, pos_id, neg_id = self.triplets[item]
 
-            if self.preprocessor.stft_dir is None:
+            if self.preprocessor.stft_dir is None or self.preprocessor.stft_dir == 'None':
 
                 query = torch.from_numpy(
                     librosa.load(
