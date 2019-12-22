@@ -182,7 +182,8 @@ def train_epoch(config,
 
         # TODO
         # ex.log_scalar(f'train loss fold {fold}', loss.item(), step=total_steps)
-        summary_writer.add_scalar(f'data/train loss fold {fold}', loss.item(), total_steps)
+        with summary_writer as w:
+            w.add_scalar(f'data/train loss fold {fold}', loss.item(), total_steps)
 
         if config.validate_every:
             if i % config.validate_every == 0:
