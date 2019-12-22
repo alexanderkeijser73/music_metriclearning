@@ -10,3 +10,8 @@ models/siamesenet.py
 models/triplet_matchnet.py
 models/triplet_matchnet_patch_based.py
 models/tripletnet.py
+config.txt
+my_script.py
+parse_args.py
+parse_args.py
+*.0

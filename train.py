@@ -23,8 +23,8 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 
 def set_start_timestamp():
-    global time_now
-    time_now = time.strftime('%d_%b_%H_%M_%S')
+    global start_timestamp
+    start_timestamp = time.strftime('%d_%b_%H_%M_%S')
 
 def get_batch_loss(ft_net, mtr_net, batch, criterion):
     # Configure input
@@ -60,7 +60,7 @@ def train_k_fold_cv(config, pr):
 
     per_fold_cfr = []
     global summary_writer
-    summary_writer = SummaryWriter(os.path.join(config.tensorboard_logdir, time_now))
+    summary_writer = SummaryWriter(os.path.join(config.tensorboard_logdir, start_timestamp))
     #TODO: open and write to summarywriter
 
     for fold_idx in range(config.n_folds):
@@ -136,7 +136,7 @@ def train_fold(config,
 
 
 def test_fold(config, fold, net, test_dl):
-    checkpoint = os.path.join(config.checkpoint_path, f'best_model_{time_now}_fold{fold}.pt.tar')
+    checkpoint = os.path.join(config.checkpoint_path, f'best_model_{start_timestamp}_fold{fold}.pt.tar')
     net = load_checkpoint(net, checkpoint)
     print('Checkpoint loaded...')
     cfr = test(test_dl, net, False, verbose=config.verbose)
@@ -203,7 +203,7 @@ def train_epoch(config,
                         save_checkpoint(ft_net,
                                         optimizer,
                                         config.checkpoint_path,
-                                        filename=f'best_model_{time_now}_fold{fold}.pt.tar',
+                                        filename=f'best_model_{start_timestamp}_fold{fold}.pt.tar',
                                         valid_loss=valid_loss.item())
 
 
@@ -211,15 +211,15 @@ def train_epoch(config,
 
 
 def main(config_file='config_local.yaml', parse_args=False):
-
+    print('---------')
+    print(f'Using device: {device.type}')
+    print('---------')
     set_start_timestamp()
     if parse_args:
         config = parse_args_config()
     else:
         config = load_config(config_file)
-    print('------------')
-    print(config.stft_dir)
-    print('------------')
+
     # Transforms applied by dataloader
     transforms_list = [
         ToMel(n_mels=80, hop=512, f_min=0., f_max=8000., sr=16000, num_n_fft=3, start_n_fft=1024),
