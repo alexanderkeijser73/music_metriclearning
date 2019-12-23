@@ -8,6 +8,8 @@ from torch.utils.data import SubsetRandomSampler
 import yaml
 import configargparse
 
+device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+
 def print_config(config_obj):
     for k, v in vars(config_obj).items():
         print(f'{k}: {v}')
@@ -16,7 +18,7 @@ def print_config(config_obj):
 def get_triplet_preds(ft_net, mtr_net, batch):
     # Configure input
     query, pos, neg = batch
-    # query, pos, neg = query.squeeze().to(device), pos.squeeze().to(device), neg.squeeze().to(device)
+    query, pos, neg = query.squeeze().to(device), pos.squeeze().to(device), neg.squeeze().to(device)
 
     # Calculate features
     query_fts, pos_fts, neg_fts = ft_net(query), ft_net(pos), ft_net(neg)
