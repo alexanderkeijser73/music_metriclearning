@@ -128,7 +128,7 @@ def test_fold(config, fold, test_dl, ftr_net, mtr_net):
     ftr_net_checkpoint = os.path.join(config.checkpoint_path, f'best_model_{start_timestamp}_fold{fold}_ftr_net.pt.tar')
     mtr_net_checkpoint = os.path.join(config.checkpoint_path, f'best_model_{start_timestamp}_fold{fold}_mtr_net.pt.tar')
     mtr_net = load_checkpoint(mtr_net, mtr_net_checkpoint)
-    ftr_net = load_checkpoint(mtr_net, ftr_net_checkpoint)
+    ftr_net = load_checkpoint(ftr_net, ftr_net_checkpoint)
     print('Checkpoint loaded...')
     cfr = eval(test_dl, ftr_net, mtr_net, config.verbose)
     return cfr
@@ -149,7 +149,7 @@ def train_epoch(config,
         total_steps = i + epoch * len(train_dataloader)
 
         #todo: remove
-        if i==50:
+        if i==5:
             break
 
         # Only for time measurement of step through network

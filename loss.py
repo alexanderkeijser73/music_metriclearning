@@ -7,8 +7,8 @@ class TripletLoss(nn.Module):
         super(TripletLoss, self).__init__()
 
     def forward(self, pos_patch_sims, neg_patch_sims):
-        d_plus_max = pos.max(dim=-1, keepdims=True)[0]
-        psi = torch.clamp(d_plus_max - neg, min=0).mean()
+        d_plus_max = pos_patch_sims.max(dim=-1, keepdims=True)[0]
+        psi = torch.clamp(d_plus_max - neg_patch_sims, min=0).mean()
         log_pos = torch.log(1 - pos_patch_sims)
         log_neg = torch.log(neg_patch_sims)
         phi = -(log_pos.mean() + log_neg.mean())
