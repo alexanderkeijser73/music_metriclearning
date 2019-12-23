@@ -148,6 +148,10 @@ def train_epoch(config,
     for i, batch in enumerate(train_dataloader):
         total_steps = i + epoch * len(train_dataloader)
 
+        #todo: remove
+        if i==50:
+            break
+
         # Only for time measurement of step through network
         t1 = time.time()
 
