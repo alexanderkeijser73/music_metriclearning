@@ -7,8 +7,8 @@ from .data.dataloader import ToMel, NormFreqBands, Chunk
 from .models.featurenet import FeatureNet
 from .models.metricnet import MetricNet
 from .loss import TripletLoss
-from .testing_song_level import test
-from .train_utils import save_checkpoint, load_checkpoint, get_patch_tuples, load_config, parse_args_config
+from .eval import eval
+from .train_utils import save_checkpoint, load_checkpoint, load_config, parse_args_config, get_triplet_preds, print_config
 
 import torch
 from torchvision import transforms
@@ -27,22 +27,10 @@ def set_start_timestamp():
     start_timestamp = time.strftime('%d_%b_%H_%M_%S')
 
 def get_batch_loss(ft_net, mtr_net, batch, criterion):
-    # Configure input
-    query, pos, neg = batch
-    query, pos, neg = query.squeeze().to(device), pos.squeeze().to(device), neg.squeeze().to(device)
 
-    # Calculate features
-    query_fts, pos_fts, neg_fts = ft_net(query), ft_net(pos), ft_net(neg)
-
-    # Get all combinations of patches to be fed into metricnet
-    # and calculate patch similarities
-    pos_input = torch.cat(get_patch_tuples(query_fts, pos_fts), dim=1)
-    neg_input = torch.cat(get_patch_tuples(query_fts, neg_fts), dim=1)
-    pos_sims = mtr_net(pos_input)
-    neg_sims = mtr_net(neg_input)
-
+    pos_sims, neg_sims = get_triplet_preds(ft_net, mtr_net, batch)
     # Calculate loss
-    loss = criterion(pos_sims, neg_sims, query_size=query_fts.size(0))
+    loss = criterion(pos_sims, neg_sims)
 
     return loss
 
@@ -61,7 +49,6 @@ def train_k_fold_cv(config, pr):
     per_fold_cfr = []
     global summary_writer
     summary_writer = SummaryWriter(os.path.join(config.tensorboard_logdir, start_timestamp))
-    #TODO: open and write to summarywriter
 
     for fold_idx in range(config.n_folds):
         # Initialize feature extractor net
@@ -88,11 +75,9 @@ def train_k_fold_cv(config, pr):
 
         train_triplets, test_triplets = pr.get_next_fold()
 
-        # TODO
-
         train_dl = torch.utils.data.DataLoader(FoldDataset(pr, train_triplets, siamese=False), config.batch_size)
         valid_dl = torch.utils.data.DataLoader(FoldDataset(pr, test_triplets, siamese=False), config.valid_batch_size)
-        # test_dl = torch.utils.data.DataLoader(FoldDataset(pr, test_triplets), 1)
+        test_dl = torch.utils.data.DataLoader(FoldDataset(pr, test_triplets), 1)
 
         print('training....')
 
@@ -100,12 +85,16 @@ def train_k_fold_cv(config, pr):
 
         print('testing....')
 
-        # cfr = test_fold(fold_idx + 1, net, test_dl)
-        # per_fold_cfr.append(cfr)
+        cfr = test_fold(config, fold_idx + 1, test_dl, feature_extractor, metricnet)
+        per_fold_cfr.append(cfr)
 
+    mean_cfr = sum(per_fold_cfr) / len(per_fold_cfr) * 100
+    summary_writer.add_hparams(hparam_dict=vars(config), metric_dict={'hparam/mean_cfr': mean_cfr})
+    summary_writer.close()
     print('--------------------------------------------------')
     print('--------------------------------------------------')
-    print(f'Mean CFR: {sum(per_fold_cfr) / len(per_fold_cfr) * 100:.4f}%')
+    print(f'Mean CFR: {mean_cfr:.4f}%')
+
 
 
 def train_fold(config,
@@ -135,11 +124,13 @@ def train_fold(config,
 
 
 
-def test_fold(config, fold, net, test_dl):
-    checkpoint = os.path.join(config.checkpoint_path, f'best_model_{start_timestamp}_fold{fold}.pt.tar')
-    net = load_checkpoint(net, checkpoint)
+def test_fold(config, fold, test_dl, ftr_net, mtr_net):
+    ftr_net_checkpoint = os.path.join(config.checkpoint_path, f'best_model_{start_timestamp}_fold{fold}_ftr_net.pt.tar')
+    mtr_net_checkpoint = os.path.join(config.checkpoint_path, f'best_model_{start_timestamp}_fold{fold}_mtr_net.pt.tar')
+    mtr_net = load_checkpoint(mtr_net, mtr_net_checkpoint)
+    ftr_net = load_checkpoint(mtr_net, ftr_net_checkpoint)
     print('Checkpoint loaded...')
-    cfr = test(test_dl, net, False, verbose=config.verbose)
+    cfr = eval(test_dl, ftr_net, mtr_net, config.verbose)
     return cfr
 
 
@@ -147,7 +138,7 @@ def train_epoch(config,
                 fold,
                 epoch,
                 best_loss,
-                ft_net,
+                ftr_net,
                 mtr_net,
                 criterion,
                 optimizer,
@@ -162,7 +153,7 @@ def train_epoch(config,
 
         optimizer.zero_grad()
 
-        loss = get_batch_loss(ft_net, mtr_net, batch, criterion)
+        loss = get_batch_loss(ftr_net, mtr_net, batch, criterion)
 
         loss.backward()
         optimizer.step()
@@ -180,46 +171,51 @@ def train_epoch(config,
                 % (epoch, config.n_epochs, i, len(train_dataloader), loss.item(), examples_per_second)
             )
 
-        # TODO
-        # ex.log_scalar(f'train loss fold {fold}', loss.item(), step=total_steps)
-        with summary_writer as w:
-            w.add_scalar(f'data/train loss fold {fold}', loss.item(), total_steps)
+        summary_writer.add_scalar(f'data/train loss fold {fold}', loss.item(), total_steps)
 
         if config.validate_every:
             if i % config.validate_every == 0:
                 valid_batch = iter(valid_dataloader).next()
 
-                valid_loss = validate(ft_net, mtr_net, valid_batch, criterion)
+                valid_loss = validate(ftr_net, mtr_net, valid_batch, criterion)
 
                 if config.verbose:
                     print(f'VALID LOSS: {valid_loss} -----------------------------------')
 
-                # TODO
-                # ex.log_scalar(f'valid loss fold {fold}', valid_loss.item(), step=total_steps)
                 summary_writer.add_scalar(f'data/valid loss fold {fold}', valid_loss.item(), total_steps)
 
                 if valid_loss < best_loss:
                     best_loss = valid_loss
                     if config.save:
-                        save_checkpoint(ft_net,
+                        save_checkpoint(ftr_net,
                                         optimizer,
                                         config.checkpoint_path,
-                                        filename=f'best_model_{start_timestamp}_fold{fold}.pt.tar',
+                                        filename=f'best_model_{start_timestamp}_fold{fold}_ftr_net.pt.tar',
                                         valid_loss=valid_loss.item())
+                        save_checkpoint(mtr_net,
+                                        optimizer,
+                                        config.checkpoint_path,
+                                        filename=f'best_model_{start_timestamp}_fold{fold}_mtr_net.pt.tar',
+                                        valid_loss=valid_loss.item())
+
 
 
     return best_loss
 
 
 def main(config_file='config_local.yaml', parse_args=False):
-    print('---------')
+    print('-' * 79)
     print(f'Using device: {device.type}')
-    print('---------')
+    print('-' * 79)
+
     set_start_timestamp()
+
+    # Handle config file/cli args
     if parse_args:
         config = parse_args_config()
     else:
         config = load_config(config_file)
+    print_config(config)
 
     # Transforms applied by dataloader
     transforms_list = [

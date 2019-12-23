@@ -8,6 +8,29 @@ from torch.utils.data import SubsetRandomSampler
 import yaml
 import configargparse
 
+def print_config(config_obj):
+    for k, v in vars(config_obj).items():
+        print(f'{k}: {v}')
+    print('-' * 79)
+
+def get_triplet_preds(ft_net, mtr_net, batch):
+    # Configure input
+    query, pos, neg = batch
+    # query, pos, neg = query.squeeze().to(device), pos.squeeze().to(device), neg.squeeze().to(device)
+
+    # Calculate features
+    query_fts, pos_fts, neg_fts = ft_net(query), ft_net(pos), ft_net(neg)
+
+    # Get all combinations of patches to be fed into metricnet
+    # and calculate patch similarities
+    pos_input = torch.cat(get_patch_tuples(query_fts, pos_fts), dim=1)
+    neg_input = torch.cat(get_patch_tuples(query_fts, neg_fts), dim=1)
+    pos_sims = mtr_net(pos_input)
+    neg_sims = mtr_net(neg_input)
+    pos_sims = pos_sims.view(query_fts.size(0), -1)
+    neg_sims = neg_sims.view(query_fts.size(0), -1)
+    return pos_sims, neg_sims
+
 def parse_args_config():
       p = configargparse.ArgParser(default_config_files=['config_local.yaml'])
       p.add('-c', '--my-config', required=False, is_config_file=True, help='config file path')
