@@ -105,13 +105,13 @@ class ToMel(object):
         for i in range(self.num_n_fft):
             n_fft = self.start_n_fft * 2 ** i
             # TODO: CHECK FOR TORCHAUDIO VERSION (<0.3 hop, 0.3 hop_length)
-            cat_sample.append(MelSpectrogram(n_mels=self.n_mels,
-                                             hop_length=self.hop,
-                                             f_min=self.f_min,
-                                             f_max=self.f_max,
-                                             sample_rate=self.sr, n_fft=n_fft
-                                             )(sample.unsqueeze(0))
-                              )
+            mel_transform = MelSpectrogram(n_mels=self.n_mels,
+                                           hop_length=self.hop,
+                                           f_min=self.f_min,
+                                           f_max=self.f_max,
+                                           sample_rate=self.sr, n_fft=n_fft
+                                           )
+            cat_sample.append(mel_transform.to(device)(sample.unsqueeze(0)))
         # transpose to shape Nx3xTxF
         return torch.cat(cat_sample).transpose(-1,-2)
 

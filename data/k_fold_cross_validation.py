@@ -162,7 +162,7 @@ class FoldDataset():
                 )
 
                 if self.preprocessor.transform:
-                    query, pos, neg = query.to(device), pos.to(device), neg.to(device)
+                    # query, pos, neg = query.to(device), pos.to(device), neg.to(device)
                     query = self.preprocessor.transform(query)
                     pos = self.preprocessor.transform(pos)
                     neg = self.preprocessor.transform(neg)

@@ -10,6 +10,7 @@ lr: 0.01
 sr: 22050
 n_folds: 10
 tensorboard_logdir: 'gdrive/My Drive/UPF SMC/Thesis UPF/tensorboard_runs'
+debugging: False
 
 lr_patience: 1
 lr_decrease_factor: 0.5

@@ -53,6 +53,7 @@ def parse_args_config():
       p.add('--batch_size', required=False, type=int)
       p.add('--valid_batch_size', required=False, type=int)
       p.add('--n_epochs', required=False, type=int)
+      p.add('--debugging', required=False, type=bool)
       config = p.parse_args()
       return config
 

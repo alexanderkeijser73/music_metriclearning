@@ -149,8 +149,9 @@ def train_epoch(config,
         total_steps = i + epoch * len(train_dataloader)
 
         #todo: remove
-        if i==5:
-            break
+        if config.debugging:
+            if i==5:
+                break
 
         # Only for time measurement of step through network
         t1 = time.time()

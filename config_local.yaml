@@ -10,6 +10,7 @@ lr: 0.01
 sr: 22050
 n_folds: 10
 tensorboard_logdir: ./tensorboard_logs
+debugging: True
 
 lr_patience: 1
 lr_decrease_factor: 0.5
