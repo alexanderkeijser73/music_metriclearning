@@ -2,6 +2,7 @@ import os
 
 import librosa
 import torch
+from torch import nn
 from torch.utils.data import Dataset, DataLoader
 from torchaudio.transforms import MelSpectrogram
 from torchvision import transforms
@@ -84,12 +85,10 @@ class MTATTripletDataset(Dataset):
         return len(self.triplets)
 
 
-
-
-
-class ToMel(object):
+class ToMel(torch.nn.Module):
 
     def __init__(self, n_mels=80, hop=512, f_min=0., f_max=8000., sr=16000, num_n_fft=3, start_n_fft=1024):
+        super(ToMel, self).__init__()
         self.n_mels = n_mels
         self.hop = hop
         self.f_min = f_min
@@ -110,10 +109,13 @@ class ToMel(object):
                                            f_min=self.f_min,
                                            f_max=self.f_max,
                                            sample_rate=self.sr, n_fft=n_fft
-                                           )
-            cat_sample.append(mel_transform.to(device)(sample.unsqueeze(0)))
+                                           ).to(device)
+
+            if sample.dim() < 2:
+                sample = sample.unsqueeze(0)
+            cat_sample.append(mel_transform(sample))
         # transpose to shape Nx3xTxF
-        return torch.cat(cat_sample).transpose(-1,-2)
+        return torch.cat(cat_sample).transpose(-1, -2)
 
 
 class NormFreqBands(object):
