@@ -173,6 +173,6 @@ def train_k_fold_cv(train_function, test_function, net, dataset, n_folds=10, tra
 def get_patch_tuples(query_fts, comp_fts):
     idx_tuples = product(range(query_fts.size(0)), range(comp_fts.size(0)))
     query_idxs, comp_idxs = list(zip(*idx_tuples))
-    query = torch.index_select(query_fts, dim=0, index=torch.LongTensor(query_idxs))
-    comp = torch.index_select(comp_fts, dim=0, index=torch.LongTensor(comp_idxs))
+    query = torch.index_select(query_fts, dim=0, index=torch.LongTensor(query_idxs).to(device))
+    comp = torch.index_select(comp_fts, dim=0, index=torch.LongTensor(comp_idxs).to(device))
     return query, comp
