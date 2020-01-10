@@ -48,7 +48,8 @@ def train_k_fold_cv(config, pr):
 
     per_fold_cfr = []
     global summary_writer
-    summary_writer = SummaryWriter(os.path.join(config.tensorboard_logdir, start_timestamp))
+    if config.save:
+        summary_writer = SummaryWriter(os.path.join(config.tensorboard_logdir, start_timestamp))
 
     for fold_idx in range(config.n_folds):
         # Initialize feature extractor net
@@ -89,11 +90,11 @@ def train_k_fold_cv(config, pr):
         per_fold_cfr.append(cfr)
 
     mean_cfr = sum(per_fold_cfr) / len(per_fold_cfr) * 100
-    summary_writer.add_hparams(hparam_dict=vars(config), metric_dict={'hparam/mean_cfr': mean_cfr})
-    summary_writer.close()
-    print('--------------------------------------------------')
     print('--------------------------------------------------')
     print(f'Mean CFR: {mean_cfr:.4f}%')
+    summary_writer.add_hparams(hparam_dict=vars(config), metric_dict={'hparam/mean_cfr': mean_cfr})
+    summary_writer.close()
+
 
 
 
@@ -176,7 +177,8 @@ def train_epoch(config,
                 % (epoch, config.n_epochs, i, len(train_dataloader), loss.item(), examples_per_second)
             )
 
-        summary_writer.add_scalar(f'data/train loss fold {fold}', loss.item(), total_steps)
+        if config.save:
+            summary_writer.add_scalar(f'data/train loss fold {fold}', loss.item(), total_steps)
 
         if config.validate_every:
             if i % config.validate_every == 0:
@@ -187,11 +189,11 @@ def train_epoch(config,
                 if config.verbose:
                     print(f'VALID LOSS: {valid_loss} -----------------------------------')
 
-                summary_writer.add_scalar(f'data/valid loss fold {fold}', valid_loss.item(), total_steps)
+                if config.save:
+                    summary_writer.add_scalar(f'data/valid loss fold {fold}', valid_loss.item(), total_steps)
 
-                if valid_loss < best_loss:
-                    best_loss = valid_loss
-                    if config.save:
+                    if valid_loss < best_loss:
+                        best_loss = valid_loss
                         save_checkpoint(ftr_net,
                                         optimizer,
                                         config.checkpoint_path,
