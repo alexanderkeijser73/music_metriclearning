@@ -38,7 +38,7 @@ def parse_args_config():
       p.add('-c', '--my-config', required=False, is_config_file=True, help='config file path')
       p.add('--checkpoint_path', required=False, type=str)
       p.add('--best_checkpoint', required=False, type=str)
-      p.add('--save', required=False, type=bool)
+      p.add('--save', required=False, action='store_true')
       p.add('--comparisons_file', required=False, type=str)
       p.add('--clips_dir', required=False, type=str)
       p.add('--stft_dir', required=False)
@@ -53,8 +53,9 @@ def parse_args_config():
       p.add('--batch_size', required=False, type=int)
       p.add('--valid_batch_size', required=False, type=int)
       p.add('--n_epochs', required=False, type=int)
-      p.add('--debugging', required=False, type=bool)
+      p.add('--debugging', required=False, action='store_true')
       config = p.parse_args()
+      print(config.debugging)
       return config
 
 

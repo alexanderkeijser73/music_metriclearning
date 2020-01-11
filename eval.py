@@ -18,8 +18,8 @@ def check_song_level_constraint(ftr_net, metr_net, query_song, pos_song, neg_son
     # create all query-pos-neg frame triplet combinations
     idx_tuples = product(range(pos_sims.size(1)), range(neg_sims.size(1)))
     pos_idxs, neg_idxs = list(zip(*idx_tuples))
-    pos = torch.index_select(pos_sims, dim=1, index=torch.LongTensor(pos_idxs))
-    neg = torch.index_select(neg_sims, dim=1, index=torch.LongTensor(neg_idxs))
+    pos = torch.index_select(pos_sims, dim=1, index=torch.LongTensor(pos_idxs).to(device))
+    neg = torch.index_select(neg_sims, dim=1, index=torch.LongTensor(neg_idxs).to(device))
     # perform majority voting to evaluate song-level constraint
     frame_level_constraint = pos > neg
     song_level_constraint = (frame_level_constraint.sum() > frame_level_constraint.numel()/2).item()

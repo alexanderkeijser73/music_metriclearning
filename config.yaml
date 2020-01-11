@@ -1,6 +1,6 @@
 checkpoint_path: /home/akeijser/checkpoints_metriclearning
 best_checkpoint: best_model_17_May_13_09_32.pt.tar
-save: False
+save: True
 comparisons_file: /home/akeijser/MagnaTagATune/comparisons_final.csv
 clips_dir: /home/akeijser/MagnaTagATune/mp3
 stft_dir: None
@@ -18,4 +18,4 @@ lr_decrease_factor: 0.5
 
 batch_size: 1
 valid_batch_size: 1
-n_epochs: 50
+n_epochs: 1
