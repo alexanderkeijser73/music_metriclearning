@@ -34,7 +34,7 @@ def get_triplet_preds(ft_net, mtr_net, batch):
     return pos_sims, neg_sims
 
 def parse_args_config():
-      p = configargparse.ArgParser(default_config_files=['config_local.yaml'])
+      p = configargparse.ArgParser(default_config_files=[], config_file_parser_class=configargparse.YAMLConfigFileParser)
       p.add('-c', '--my-config', required=False, is_config_file=True, help='config file path')
       p.add('--checkpoint_path', required=False, type=str)
       p.add('--best_checkpoint', required=False, type=str)
@@ -54,6 +54,7 @@ def parse_args_config():
       p.add('--valid_batch_size', required=False, type=int)
       p.add('--n_epochs', required=False, type=int)
       p.add('--debugging', required=False, action='store_true')
+      # _, remaining_argv = p.parse_known_args()
       config = p.parse_args()
       print(config.debugging)
       return config

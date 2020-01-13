@@ -1,6 +1,6 @@
 checkpoint_path: ./checkpoints_metriclearning
 best_checkpoint: best_model_17_May_13_09_32.pt.tar
-save: False
+save: True
 comparisons_file: /Users/Alexander/Desktop/music_metriclearning/MagnaTagATune/comparisons_final.csv
 clips_dir: /Users/Alexander/Desktop/music_metriclearning/MagnaTagATune/mp3
 stft_dir: None
