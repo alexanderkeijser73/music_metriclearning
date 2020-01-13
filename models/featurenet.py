@@ -1,6 +1,7 @@
 from torch import sigmoid
 import torch
 from torch.nn.functional import relu
+from data.dataloader import Chunk
 
 from .featurenet_modules import *
 
@@ -9,6 +10,7 @@ class FeatureNet(nn.Module):
 
     def __init__(self, n_freq_bins=80, in_channels=3, n_outputs=512, sigmoid=False):
         super(FeatureNet, self).__init__()
+        self.chunk = Chunk()
         self.conv0 = nn.Conv1d(in_channels=in_channels,
                                out_channels=64,
                                kernel_size=(3, n_freq_bins),
@@ -25,6 +27,7 @@ class FeatureNet(nn.Module):
         self.activations = None
 
     def forward(self, x):
+        x = self.chunk(x)
         x = self.get_activations(x)
 
         if x.requires_grad:

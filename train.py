@@ -227,8 +227,8 @@ def main(config_file='config_local.yaml', parse_args=False):
     # Transforms applied by dataloader
     transforms_list = [
         ToMel(n_mels=80, hop=512, f_min=0., f_max=8000., sr=16000, num_n_fft=3, start_n_fft=1024),
-        NormFreqBands(),
-        Chunk()
+        NormFreqBands()
+        # Chunk() # moved to net.forward()
     ]
 
     # Analyse relative similarity votes using graph and split into K folds

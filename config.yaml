@@ -3,7 +3,7 @@ best_checkpoint: best_model_17_May_13_09_32.pt.tar
 save: True
 comparisons_file: /home/akeijser/MagnaTagATune/comparisons_final.csv
 clips_dir: /home/akeijser/MagnaTagATune/mp3
-stft_dir: None
+stft_dir: /home/akeijser/MagnaTagATune/stft
 verbose: True
 validate_every: 10
 lr: 0.01
