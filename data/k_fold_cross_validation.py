@@ -92,7 +92,6 @@ class FoldDataset():
                     query = self.preprocessor.transform(query)
                     pos = self.preprocessor.transform(pos)
                     neg = self.preprocessor.transform(neg)
-
             else:
                 fname = os.path.join(self.preprocessor.stft_dir, str(query_id) + '.pt')
                 try:
@@ -111,7 +110,6 @@ class FoldDataset():
                     neg = torch.load(fname, map_location=device.type)
                 except:
                     raise RuntimeError(f'File {fname} could not be found')
-
             return query, pos, neg
 
 
