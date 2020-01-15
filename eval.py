@@ -1,9 +1,4 @@
-import sys
-
-sys.path.append('..')
-
-# todo: this does not work with pytest
-from .train_utils import get_triplet_preds
+from train_utils import get_triplet_preds
 
 import torch
 import torch.nn.functional as F

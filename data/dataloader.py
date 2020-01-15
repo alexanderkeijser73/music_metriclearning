@@ -2,7 +2,6 @@ import os
 
 import librosa
 import torch
-from torch import nn
 from torch.utils.data import Dataset, DataLoader
 from torchaudio.transforms import MelSpectrogram
 from torchvision import transforms

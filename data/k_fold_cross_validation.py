@@ -58,59 +58,58 @@ class FoldDataset():
         self.siamese = siamese
 
     def __getitem__(self, item):
+        query_id, pos_id, neg_id = self.triplets[item]
 
-            query_id, pos_id, neg_id = self.triplets[item]
+        if self.preprocessor.stft_dir is None or self.preprocessor.stft_dir == 'None':
+            query = torch.from_numpy(
+                librosa.load(
+                    os.path.join(self.preprocessor.clips_dir, self.preprocessor.id2path[query_id]),
+                    mono=True,
+                    sr=self.preprocessor.sr
+                )[0]
+            )
 
-            if self.preprocessor.stft_dir is None or self.preprocessor.stft_dir == 'None':
+            pos = torch.from_numpy(
+                librosa.load(
+                    os.path.join(self.preprocessor.clips_dir, self.preprocessor.id2path[pos_id]),
+                    mono=True,
+                    sr=self.preprocessor.sr
+                )[0]
+            )
 
-                query = torch.from_numpy(
-                    librosa.load(
-                        os.path.join(self.preprocessor.clips_dir, self.preprocessor.id2path[query_id]),
-                        mono=True,
-                        sr=self.preprocessor.sr
-                    )[0]
-                )
+            neg = torch.from_numpy(
+                librosa.load(
+                    os.path.join(self.preprocessor.clips_dir, self.preprocessor.id2path[neg_id]),
+                    mono=True,
+                    sr=self.preprocessor.sr)
+                [0]
+            )
 
-                pos = torch.from_numpy(
-                    librosa.load(
-                        os.path.join(self.preprocessor.clips_dir, self.preprocessor.id2path[pos_id]),
-                        mono=True,
-                        sr=self.preprocessor.sr
-                    )[0]
-                )
+            if self.preprocessor.transform:
+                query, pos, neg = query.to(device), pos.to(device), neg.to(device)
+                query = self.preprocessor.transform(query)
+                pos = self.preprocessor.transform(pos)
+                neg = self.preprocessor.transform(neg)
+        else:
+            fname = os.path.join(self.preprocessor.stft_dir, str(query_id) + '.pt')
+            try:
+                query = torch.load(fname, map_location=device.type)
 
-                neg = torch.from_numpy(
-                    librosa.load(
-                        os.path.join(self.preprocessor.clips_dir, self.preprocessor.id2path[neg_id]),
-                        mono=True,
-                        sr=self.preprocessor.sr)
-                    [0]
-                )
+            except:
+                raise RuntimeError(f'File {fname} could not be found')
 
-                if self.preprocessor.transform:
-                    query, pos, neg = query.to(device), pos.to(device), neg.to(device)
-                    query = self.preprocessor.transform(query)
-                    pos = self.preprocessor.transform(pos)
-                    neg = self.preprocessor.transform(neg)
-            else:
-                fname = os.path.join(self.preprocessor.stft_dir, str(query_id) + '.pt')
-                try:
-                    query = torch.load(fname, map_location=device.type)
-                except:
-                    raise RuntimeError(f'File {fname} could not be found')
+            fname = os.path.join(self.preprocessor.stft_dir, str(pos_id) + '.pt')
+            try:
+                pos = torch.load(fname, map_location=device.type)
+            except:
+                raise RuntimeError(f'File {fname} could not be found')
 
-                fname = os.path.join(self.preprocessor.stft_dir, str(pos_id) + '.pt')
-                try:
-                    pos = torch.load(fname, map_location=device.type)
-                except:
-                    raise RuntimeError(f'File {fname} could not be found')
-
-                fname = os.path.join(self.preprocessor.stft_dir, str(neg_id) + '.pt')
-                try:
-                    neg = torch.load(fname, map_location=device.type)
-                except:
-                    raise RuntimeError(f'File {fname} could not be found')
-            return query, pos, neg
+            fname = os.path.join(self.preprocessor.stft_dir, str(neg_id) + '.pt')
+            try:
+                neg = torch.load(fname, map_location=device.type)
+            except:
+                raise RuntimeError(f'File {fname} could not be found')
+        return query, pos, neg
 
 
     def __len__(self):

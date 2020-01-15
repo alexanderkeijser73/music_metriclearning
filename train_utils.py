@@ -19,19 +19,54 @@ def get_triplet_preds(ft_net, mtr_net, batch):
     # Configure input
     query, pos, neg = batch
     query, pos, neg = query.squeeze().to(device), pos.squeeze().to(device), neg.squeeze().to(device)
+    # print(f'query, pos, neg size: {query.size(), pos.size(), neg.size()}')
+    # print(f'num q, p, n patches: '
+    #       f'{query.size(1) // 50, pos.size(1) // 50, neg.size(1) // 50}')
+    # [C, T, F] with C=channels (different window lengths), T= num hops in
+    # time dimension, F=num mel bands
 
-    # Calculate features
+    # Calculate features for all query, pos, neg patches
     query_fts, pos_fts, neg_fts = ft_net(query), ft_net(pos), ft_net(neg)
+    # [NxM, 2xE] with N=num query patches, M= num pos/neg patches,
+    # E= embedding dim
 
-    # Get all combinations of patches to be fed into metricnet
+    # Get all combinations of patch features to be fed into metricnet
+    q, p = get_patch_tuples(query_fts, pos_fts)
+    # print(f'q, p patch tuple shape: {q.shape, p.shape}')
+    pos_input = torch.cat((q, p), dim=1)
+    q, n = get_patch_tuples(query_fts, neg_fts)
+    # print(f'q, n patch tuple shape: {q.shape, n.shape}')
+    neg_input = torch.cat((q, n), dim=1)
+    #[NxM, 2xE] with N=num query patches, M= num pos/neg patches,
+    # E= embedding dim (2xE because it's a query-pos/neg pair)
+
     # and calculate patch similarities
-    pos_input = torch.cat(get_patch_tuples(query_fts, pos_fts), dim=1)
-    neg_input = torch.cat(get_patch_tuples(query_fts, neg_fts), dim=1)
-    pos_sims = mtr_net(pos_input)
-    neg_sims = mtr_net(neg_input)
+    pos_sims = mtr_net(pos_input).squeeze()
+    neg_sims = mtr_net(neg_input).squeeze()
+    # [NxM, 1] with N=num query patches, M= num pos/neg patches
+
+    # reshape to N x M square tensor
+    #todo: probably error here: reshaping back does not have query idx in
+    # the row dimension!
+    '''
     pos_sims = pos_sims.view(query_fts.size(0), -1)
     neg_sims = neg_sims.view(query_fts.size(0), -1)
+    '''
+
+    pos_sims = pos_sims.unfold(0, pos_fts.size(0), query_fts.size(0))
+    neg_sims = neg_sims.unfold(0, neg_fts.size(0), query_fts.size(0))
+    # print(f'pos_sims, neg_sims sizes: {pos_sims.shape, neg_sims.shape}')
+    # [N, M] with N=num query patches, M= num pos/neg patches
     return pos_sims, neg_sims
+
+def get_patch_tuples(query_fts, comp_fts):
+    # get all tuples of indices to query and comp features to be compared
+    idx_tuples = product(range(query_fts.size(0)), range(comp_fts.size(0)))
+    query_idxs, comp_idxs = list(zip(*idx_tuples))
+    # retrieve values from tensors using indices
+    query = torch.index_select(query_fts, dim=0, index=torch.LongTensor(query_idxs).to(device))
+    comp = torch.index_select(comp_fts, dim=0, index=torch.LongTensor(comp_idxs).to(device))
+    return query, comp
 
 def parse_args_config():
       p = configargparse.ArgParser(default_config_files=[], config_file_parser_class=configargparse.YAMLConfigFileParser)
@@ -171,10 +206,3 @@ def train_k_fold_cv(train_function, test_function, net, dataset, n_folds=10, tra
     print('--------------------------------------------------')
     print('--------------------------------------------------')
     print(f'Mean score: {sum(per_fold_score) / len(per_fold_score) * 100:.2f}%')
-
-def get_patch_tuples(query_fts, comp_fts):
-    idx_tuples = product(range(query_fts.size(0)), range(comp_fts.size(0)))
-    query_idxs, comp_idxs = list(zip(*idx_tuples))
-    query = torch.index_select(query_fts, dim=0, index=torch.LongTensor(query_idxs).to(device))
-    comp = torch.index_select(comp_fts, dim=0, index=torch.LongTensor(comp_idxs).to(device))
-    return query, comp

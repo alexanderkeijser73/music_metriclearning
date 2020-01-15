@@ -81,5 +81,5 @@ for i, (query_id, pos_id, neg_id) in enumerate(test_ds.triplets):
         if query is None:
             query, pos, neg = test_ds[i]
         torch.save(neg, fname)
-    print(f'processed {i}/{len(test_ds)} train triplets')
+    print(f'processed {i}/{len(test_ds)} test triplets')
 
