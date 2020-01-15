@@ -16,7 +16,8 @@ def check_song_level_constraint(ftr_net, metr_net, query_song, pos_song, neg_son
     pos = torch.index_select(pos_sims, dim=1, index=torch.LongTensor(pos_idxs).to(device))
     neg = torch.index_select(neg_sims, dim=1, index=torch.LongTensor(neg_idxs).to(device))
     # perform majority voting to evaluate song-level constraint
-    frame_level_constraint = pos > neg
+    frame_level_constraint = pos < neg
+    # todo: check if this actually solved it
     song_level_constraint = (frame_level_constraint.sum() > frame_level_constraint.numel()/2).item()
     return song_level_constraint
 
