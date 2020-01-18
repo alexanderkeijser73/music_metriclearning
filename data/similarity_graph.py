@@ -93,7 +93,8 @@ class SimilarityGraph():
     @ staticmethod
     def triplet_from_edge(edge):
         all_ids = tuple({clip_id for node in edge for clip_id in node})
-        odd_one_out_id = np.intersect1d(edge[0], edge[1])
+        # Todo: this was wrong!
+        odd_one_out_id = np.setdiff1d(edge[1], edge[0])
         similar_pair = np.setdiff1d(all_ids, odd_one_out_id)
         triplet = np.concatenate((similar_pair, odd_one_out_id))
         return triplet

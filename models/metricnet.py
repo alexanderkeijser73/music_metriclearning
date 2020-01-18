@@ -9,10 +9,10 @@ class MetricNet(nn.Module):
         self.net = nn.Sequential(
             nn.Linear(self.in_features, self.n_nodes),
             nn.ReLU(inplace=True),
-            nn.Dropout(0.5),
+            # nn.Dropout(0.5),
             nn.Linear(self.n_nodes, self.n_nodes),
             nn.ReLU(inplace=True),
-            nn.Dropout(0.5),
+            # nn.Dropout(0.5),
             nn.Linear(self.n_nodes, 1),
             nn.Sigmoid()
         )

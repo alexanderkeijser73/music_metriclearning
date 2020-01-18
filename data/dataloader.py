@@ -142,3 +142,10 @@ def get_dataloader(clips_dir, comparisons_file, batch_size=64, shuffle=True, sam
     dataset = MTATTripletDataset(clips_dir, comparisons_file, transform=transforms.Compose([ToMel(), NormFreqBands()]))
     dataloader = DataLoader(dataset, batch_size, shuffle, sampler)
     return dataloader
+
+# Transforms applied by dataloader
+transforms_list = [
+    ToMel(n_mels=80, hop=512, f_min=0., f_max=8000., sr=16000,
+          num_n_fft=3, start_n_fft=1024),
+    NormFreqBands()
+]

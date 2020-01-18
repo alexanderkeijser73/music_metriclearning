@@ -1,5 +1,4 @@
 checkpoint_path: /home/akeijser/checkpoints_metriclearning
-best_checkpoint: best_model_17_May_13_09_32.pt.tar
 save: True
 comparisons_file: /home/akeijser/MagnaTagATune/comparisons_final.csv
 clips_dir: /home/akeijser/MagnaTagATune/mp3

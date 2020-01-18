@@ -1,12 +1,12 @@
 import os
 
-from .data.k_fold_cross_validation import PreprocessorKFold, FoldDataset
-from .data.dataloader import ToMel, NormFreqBands, Chunk
-from .models.featurenet import FeatureNet
-from .models.metricnet import MetricNet
-from .loss import TripletLoss
-from .eval import eval
-from .train_utils import save_checkpoint, load_checkpoint, load_config, parse_args_config, get_triplet_preds, print_config
+from data.k_fold_cross_validation import PreprocessorKFold, FoldDataset
+from data.dataloader import transforms_list
+from models.featurenet import FeatureNet
+from models.metricnet import MetricNet
+from loss import TripletLoss
+from eval import eval
+from train_utils import save_checkpoint, load_checkpoint, load_config, parse_args_config, get_triplet_preds, print_config
 
 import torch
 from torchvision import transforms
@@ -69,14 +69,10 @@ def train_k_fold_cv(config, pr):
                                                                verbose=True,
                                                                patience=config.lr_patience)
 
-        print('--------------------------------------------------')
+        print('_'*79)
         print(f'processing fold {fold_idx + 1}.....')
 
-        train_triplets, test_triplets = pr.get_next_fold()
-
-        train_dl = torch.utils.data.DataLoader(FoldDataset(pr, train_triplets, siamese=False), config.batch_size)
-        valid_dl = torch.utils.data.DataLoader(FoldDataset(pr, test_triplets, siamese=False), config.valid_batch_size)
-        test_dl = torch.utils.data.DataLoader(FoldDataset(pr, test_triplets), 1)
+        train_dl, valid_dl, test_dl = pr.get_next_fold()
 
         print('training....')
 
@@ -88,7 +84,7 @@ def train_k_fold_cv(config, pr):
         per_fold_cfr.append(cfr)
 
     mean_cfr = sum(per_fold_cfr) / len(per_fold_cfr) * 100
-    print('--------------------------------------------------')
+    print('_' * 79)
     print(f'Mean CFR: {mean_cfr:.4f}%')
     summary_writer.add_hparams(hparam_dict=vars(config), metric_dict={'hparam/mean_cfr': mean_cfr})
     summary_writer.close()
@@ -208,7 +204,7 @@ def train_epoch(config,
     return best_loss
 
 
-def main(config_file='config_local.yaml', parse_args=False):
+def main(config='config_local.yaml'):
     print('-' * 79)
     print(f'Using device: {device.type}')
     print('-' * 79)
@@ -216,22 +212,11 @@ def main(config_file='config_local.yaml', parse_args=False):
     set_start_timestamp()
 
     # Handle config file/cli args
-    if parse_args:
-        config = parse_args_config()
-    else:
-        config = load_config(config_file)
+    if isinstance(config, str):
+        config = load_config(config)
     print_config(config)
 
-    # Transforms applied by dataloader
-    transforms_list = [
-        ToMel(n_mels=80, hop=512, f_min=0., f_max=8000., sr=16000,
-              num_n_fft=3, start_n_fft=1024),
-        NormFreqBands()
-        # Chunk() # moved to net.forward()
-    ]
-
     # Analyse relative similarity votes using graph and split into K folds
-    pr =  PreprocessorKFold(config,
-                            transforms.Compose(transforms_list))
+    pr =  PreprocessorKFold(config, transforms.Compose(transforms_list))
 
     train_k_fold_cv(config, pr)

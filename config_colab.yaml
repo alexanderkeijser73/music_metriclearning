@@ -1,5 +1,4 @@
 checkpoint_path: './checkpoints_metriclearning'
-best_checkpoint: 'best_model_17_May_13_09_32.pt.tar'
 save: False
 comparisons_file: '/content/gdrive/My Drive/UPF SMC/Thesis UPF/MagnaTagATune/comparisons_final.csv'
 clips_dir: '/content/gdrive/My Drive/UPF SMC/Thesis UPF/MagnaTagATune/mp3'

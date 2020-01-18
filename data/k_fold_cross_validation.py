@@ -3,6 +3,7 @@ import os
 import librosa
 import pandas as pd
 import torch
+from torch.utils.data import DataLoader
 from sklearn.model_selection import KFold
 
 from .similarity_graph import SimilarityGraph
@@ -14,6 +15,7 @@ class PreprocessorKFold():
 
     def __init__(self, config, transform=None, ):
         self.df = pd.read_csv(config.comparisons_file, delimiter='\t')
+        self.config = config
         self.clips_dir = config.clips_dir
         self.transform = transform
         self.stft_dir = config.stft_dir
@@ -38,7 +40,10 @@ class PreprocessorKFold():
         edges_in_fold = lambda sg, fold: [edges for node in nodes_in_fold(fold) for edges in sg.graph.edges(node)]
         train_triplets = [SimilarityGraph.triplet_from_edge(edge) for edge in edges_in_fold(self.sg, train_subgraphs)]
         test_triplets = [SimilarityGraph.triplet_from_edge(edge) for edge in edges_in_fold(self.sg, test_subgraphs)]
-        return train_triplets, test_triplets
+        train_dl = DataLoader(FoldDataset(self, train_triplets), self.config.batch_size)
+        valid_dl = DataLoader(FoldDataset(self, test_triplets), self.config.valid_batch_size)
+        test_dl = DataLoader(FoldDataset(self, test_triplets), 1)
+        return train_dl, valid_dl, test_dl
 
 
 

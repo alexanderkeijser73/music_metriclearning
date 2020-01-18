@@ -2,8 +2,9 @@ import torch
 from train_utils import get_patch_tuples, get_triplet_preds
 from models.featurenet import FeatureNet
 from models.metricnet import MetricNet
+from itertools import product
 
-def test_get_patch_tuples():
+def test_get_patch_tuples_shape():
     for i in range(5):
         emb_dim = torch.randint(20, 600,(1,)).item()
         q_n_patches, p_n_patches, n_n_patches = torch.randint(2, 100, (3,))
@@ -14,6 +15,16 @@ def test_get_patch_tuples():
         neg_input = torch.cat(get_patch_tuples(query_fts, neg_fts), dim=1)
         assert pos_input.size() == (q_n_patches*p_n_patches, 2*emb_dim)
         assert neg_input.size() == (q_n_patches * n_n_patches, 2 * emb_dim)
+
+# todo: probably obsolete
+def test_get_patch_tuples_axes():
+    idx_tuples = product(range(10), range(10,20))
+    query_idxs, comp_idxs = list(zip(*idx_tuples))
+    query_idxs = torch.tensor(query_idxs).view(10, -1)
+    comp_idxs = torch.tensor(comp_idxs).view(10, -1)
+    print(query_idxs)
+    print(comp_idxs)
+    # find a way to check this automatically
 
 def test_get_triplet_preds():
     ft_net = FeatureNet()

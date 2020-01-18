@@ -19,23 +19,19 @@ def get_triplet_preds(ft_net, mtr_net, batch):
     # Configure input
     query, pos, neg = batch
     query, pos, neg = query.squeeze().to(device), pos.squeeze().to(device), neg.squeeze().to(device)
-    # print(f'query, pos, neg size: {query.size(), pos.size(), neg.size()}')
-    # print(f'num q, p, n patches: '
-    #       f'{query.size(1) // 50, pos.size(1) // 50, neg.size(1) // 50}')
     # [C, T, F] with C=channels (different window lengths), T= num hops in
     # time dimension, F=num mel bands
 
     # Calculate features for all query, pos, neg patches
     query_fts, pos_fts, neg_fts = ft_net(query), ft_net(pos), ft_net(neg)
-    # [NxM, 2xE] with N=num query patches, M= num pos/neg patches,
-    # E= embedding dim
+    # print('\n\n', query.size(1)//50, pos.size(1)//50, neg.size(1)//50, '\n\n')
+    # print('\n\n', query_fts.size(), pos_fts.size(), neg_fts.size(), '\n\n')
+    # [N, E] with N=num query/pos/neg patches, E= embedding dim
 
     # Get all combinations of patch features to be fed into metricnet
     q, p = get_patch_tuples(query_fts, pos_fts)
-    # print(f'q, p patch tuple shape: {q.shape, p.shape}')
     pos_input = torch.cat((q, p), dim=1)
     q, n = get_patch_tuples(query_fts, neg_fts)
-    # print(f'q, n patch tuple shape: {q.shape, n.shape}')
     neg_input = torch.cat((q, n), dim=1)
     #[NxM, 2xE] with N=num query patches, M= num pos/neg patches,
     # E= embedding dim (2xE because it's a query-pos/neg pair)
@@ -45,16 +41,9 @@ def get_triplet_preds(ft_net, mtr_net, batch):
     neg_sims = mtr_net(neg_input).squeeze()
     # [NxM, 1] with N=num query patches, M= num pos/neg patches
 
-    # reshape to N x M square tensor
-    #todo: probably error here: reshaping back does not have query idx in
-    # the row dimension!
-    '''
+    # reshape to N x M square tensor with query in first dimension
     pos_sims = pos_sims.view(query_fts.size(0), -1)
     neg_sims = neg_sims.view(query_fts.size(0), -1)
-    '''
-
-    pos_sims = pos_sims.unfold(0, pos_fts.size(0), query_fts.size(0))
-    neg_sims = neg_sims.unfold(0, neg_fts.size(0), query_fts.size(0))
     # print(f'pos_sims, neg_sims sizes: {pos_sims.shape, neg_sims.shape}')
     # [N, M] with N=num query patches, M= num pos/neg patches
     return pos_sims, neg_sims
@@ -69,30 +58,33 @@ def get_patch_tuples(query_fts, comp_fts):
     return query, comp
 
 def parse_args_config():
-      p = configargparse.ArgParser(default_config_files=[], config_file_parser_class=configargparse.YAMLConfigFileParser)
-      p.add('-c', '--my-config', required=False, is_config_file=True, help='config file path')
-      p.add('--checkpoint_path', required=False, type=str)
-      p.add('--best_checkpoint', required=False, type=str)
-      p.add('--save', required=False, action='store_true')
-      p.add('--comparisons_file', required=False, type=str)
-      p.add('--clips_dir', required=False, type=str)
-      p.add('--stft_dir', required=False)
-      p.add('--verbose', required=False, type=bool)
-      p.add('--validate_every', required=False, type=int)
-      p.add('--lr', required=False, type=float)
-      p.add('--sr', required=False, type=int)
-      p.add('--n_folds', required=False, type=int)
-      p.add('--tensorboard_logdir', required=False)
-      p.add('--lr_patience', required=False, type=int)
-      p.add('--lr_decrease_factor', required=False, type=float)
-      p.add('--batch_size', required=False, type=int)
-      p.add('--valid_batch_size', required=False, type=int)
-      p.add('--n_epochs', required=False, type=int)
-      p.add('--debugging', required=False, action='store_true')
-      # _, remaining_argv = p.parse_known_args()
-      config = p.parse_args()
-      print(config.debugging)
-      return config
+    p = configargparse.ArgParser(default_config_files=[], config_file_parser_class=configargparse.YAMLConfigFileParser)
+    p.add('-c', '--my-config', required=False, is_config_file=True, help='config file path')
+    p.add('--checkpoint_path', required=False, type=str)
+    p.add('-f', '--ftr_net_checkpoint', required=False, type=str,
+        default= 'best_model_15_Jan_15_55_20_fold1_ftr_net.pt.tar')
+    p.add('-m', '--mtr_net_checkpoint', required=False, type=str,
+        default='best_model_15_Jan_15_55_20_fold1_mtr_net.pt.tar')
+    p.add('--save', required=False, action='store_true')
+    p.add('--comparisons_file', required=False, type=str)
+    p.add('--clips_dir', required=False, type=str)
+    p.add('--stft_dir', required=False)
+    p.add('--verbose', required=False, type=bool)
+    p.add('--validate_every', required=False, type=int)
+    p.add('--lr', required=False, type=float)
+    p.add('--sr', required=False, type=int)
+    p.add('--n_folds', required=False, type=int)
+    p.add('--tensorboard_logdir', required=False)
+    p.add('--lr_patience', required=False, type=int)
+    p.add('--lr_decrease_factor', required=False, type=float)
+    p.add('--batch_size', required=False, type=int)
+    p.add('--valid_batch_size', required=False, type=int)
+    p.add('--n_epochs', required=False, type=int)
+    p.add('--debugging', required=False, action='store_true')
+    p.add('--eval', required=False, default=False, action='store_true')
+    # _, remaining_argv = p.parse_known_args()
+    config = p.parse_args()
+    return config
 
 
 class Config:
